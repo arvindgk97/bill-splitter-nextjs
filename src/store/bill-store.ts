@@ -30,7 +30,12 @@ interface BillState {
   updatePerson: (id: string, name: string) => boolean;
 
   // Actions - Items
-  addItem: (item: { name: string; price: number; quantity?: number; assignedMemberIds?: string[] }) => boolean;
+  addItem: (
+    nameOrItem: string | { name: string; price: number; quantity?: number; personIds?: string[]; assignedMemberIds?: string[] },
+    price?: number,
+    quantity?: number,
+    personIds?: string[]
+  ) => boolean;
   removeItem: (id: string) => void;
   updateItem: (id: string, item: Partial<Omit<BillItem, 'id'>>) => boolean;
   togglePersonAssignment: (itemId: string, personId: string) => void;
@@ -137,8 +142,20 @@ export const useBillStore = create<BillState>()(
       },
 
       // Item actions
-      addItem: (rawItem) => {
-        const validation = itemSchema.safeParse(rawItem);
+      addItem: (nameOrItem, priceArg, quantityArg, personIdsArg) => {
+        let itemObj: { name: string; price: number; quantity?: number; personIds?: string[]; assignedMemberIds?: string[] };
+        if (typeof nameOrItem === 'string') {
+          itemObj = {
+            name: nameOrItem,
+            price: priceArg ?? 0,
+            quantity: quantityArg ?? 1,
+            personIds: personIdsArg ?? [],
+          };
+        } else {
+          itemObj = nameOrItem;
+        }
+        const pIds = itemObj.personIds || itemObj.assignedMemberIds || [];
+        const validation = itemSchema.safeParse({ ...itemObj, assignedMemberIds: pIds });
         if (!validation.success) return false;
 
         const newItem: BillItem = {
@@ -146,6 +163,7 @@ export const useBillStore = create<BillState>()(
           name: validation.data.name,
           price: validation.data.price,
           quantity: validation.data.quantity,
+          personIds: validation.data.assignedMemberIds,
           assignedMemberIds: validation.data.assignedMemberIds,
         };
         set((state) => ({ items: [...state.items, newItem] }));
@@ -161,12 +179,20 @@ export const useBillStore = create<BillState>()(
         if (!currentItem) return false;
 
         const merged = { ...currentItem, ...updatedFields };
-        const validation = itemSchema.safeParse(merged);
+        const personIds = (merged as any).personIds || merged.assignedMemberIds || [];
+        const validation = itemSchema.safeParse({ ...merged, assignedMemberIds: personIds });
         if (!validation.success) return false;
 
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id ? { ...item, ...validation.data } : item
+            item.id === id
+              ? {
+                  ...item,
+                  ...validation.data,
+                  personIds: validation.data.assignedMemberIds,
+                  assignedMemberIds: validation.data.assignedMemberIds,
+                }
+              : item
           ),
         }));
         return true;
@@ -176,11 +202,16 @@ export const useBillStore = create<BillState>()(
         set((state) => ({
           items: state.items.map((item) => {
             if (item.id !== itemId) return item;
-            const isAssigned = item.assignedMemberIds.includes(personId);
+            const currentIds = item.personIds || item.assignedMemberIds || [];
+            const isAssigned = currentIds.includes(personId);
             const newAssigned = isAssigned
-              ? item.assignedMemberIds.filter((id) => id !== personId)
-              : [...item.assignedMemberIds, personId];
-            return { ...item, assignedMemberIds: newAssigned };
+              ? currentIds.filter((id) => id !== personId)
+              : [...currentIds, personId];
+            return {
+              ...item,
+              personIds: newAssigned,
+              assignedMemberIds: newAssigned,
+            };
           }),
         }));
       },
@@ -189,9 +220,11 @@ export const useBillStore = create<BillState>()(
         set((state) => ({
           items: state.items.map((item) => {
             if (item.id !== itemId) return item;
+            const allIds = state.people.map((m) => m.id);
             return {
               ...item,
-              assignedMemberIds: state.members.map((m) => m.id),
+              personIds: allIds,
+              assignedMemberIds: allIds,
             };
           }),
         }));
@@ -201,7 +234,7 @@ export const useBillStore = create<BillState>()(
         set((state) => ({
           items: state.items.map((item) => {
             if (item.id !== itemId) return item;
-            return { ...item, assignedMemberIds: [] };
+            return { ...item, personIds: [], assignedMemberIds: [] };
           }),
         }));
       },
@@ -228,6 +261,7 @@ export const useBillStore = create<BillState>()(
               name: 'Nasi Goreng Spesial',
               price: 35000,
               quantity: 2,
+              personIds: [p1Id, p2Id],
               assignedMemberIds: [p1Id, p2Id],
             },
             {
@@ -235,6 +269,7 @@ export const useBillStore = create<BillState>()(
               name: 'Ayam Bakar Madu',
               price: 45000,
               quantity: 1,
+              personIds: [p3Id],
               assignedMemberIds: [p3Id],
             },
             {
@@ -242,6 +277,7 @@ export const useBillStore = create<BillState>()(
               name: 'Es Teh Manis',
               price: 8000,
               quantity: 3,
+              personIds: [p1Id, p2Id, p3Id],
               assignedMemberIds: [p1Id, p2Id, p3Id],
             },
           ],

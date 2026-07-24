@@ -12,7 +12,7 @@ export function Header() {
         </Link>
 
         <a
-          href="https://github.com"
+          href="https://github.com/arvindgk97/bill-splitter-nextjs"
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-slate-600 transition hover:text-slate-900"

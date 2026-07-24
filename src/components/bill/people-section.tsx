@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { Person } from "@/types/bill";
 import { useBillStore } from "@/store/bill-store";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { EmptyState } from "./empty-state";
 import { AddPersonDialog } from "./add-person-dialog";
 import { EditPersonDialog } from "./edit-person-dialog";
 import { PersonCard } from "./person-card";
 
 export function PeopleSection() {
+  const isMounted = useIsMounted();
   const people = useBillStore((state) => state.people);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+
+  const displayPeople = isMounted ? people : [];
 
   return (
     <section>
@@ -21,7 +25,7 @@ export function PeopleSection() {
         </h2>
       </div>
 
-      {people.length === 0 ? (
+      {displayPeople.length === 0 ? (
         <EmptyState
           title="No people yet"
           description="Add everyone sharing this bill."
@@ -31,7 +35,7 @@ export function PeopleSection() {
       ) : (
         <div className="space-y-4">
           <div className="space-y-2">
-            {people.map((person) => (
+            {displayPeople.map((person) => (
               <PersonCard
                 key={person.id}
                 person={person}
