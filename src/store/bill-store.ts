@@ -8,6 +8,7 @@ export type { Person, BillItem, ExtraChargeType, PersonSummary };
 interface BillState {
   // State
   title: string;
+  people: Person[];
   members: Person[];
   items: BillItem[];
   tax: number;
@@ -60,6 +61,7 @@ const getRandomColor = () => {
 
 const initialBillState = {
   title: 'Tagihan Baru',
+  people: [],
   members: [],
   items: [],
   tax: 0,
@@ -100,29 +102,37 @@ export const useBillStore = create<BillState>()(
           name: validation.data.name,
           avatarColor: getRandomColor(),
         };
-        set((state) => ({ members: [...state.members, newPerson] }));
+        set((state) => {
+          const updated = [...state.people, newPerson];
+          return { people: updated, members: updated };
+        });
         return true;
       },
 
       removePerson: (id) => {
-        set((state) => ({
-          members: state.members.filter((m) => m.id !== id),
-          items: state.items.map((item) => ({
-            ...item,
-            assignedMemberIds: item.assignedMemberIds.filter((mId) => mId !== id),
-          })),
-        }));
+        set((state) => {
+          const updated = state.people.filter((m) => m.id !== id);
+          return {
+            people: updated,
+            members: updated,
+            items: state.items.map((item) => ({
+              ...item,
+              assignedMemberIds: item.assignedMemberIds.filter((mId) => mId !== id),
+            })),
+          };
+        });
       },
 
       updatePerson: (id, name) => {
         const validation = personSchema.safeParse({ name });
         if (!validation.success) return false;
 
-        set((state) => ({
-          members: state.members.map((m) =>
+        set((state) => {
+          const updated = state.people.map((m) =>
             m.id === id ? { ...m, name: validation.data.name } : m
-          ),
-        }));
+          );
+          return { people: updated, members: updated };
+        });
         return true;
       },
 

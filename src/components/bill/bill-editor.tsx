@@ -1,3 +1,5 @@
+import { PeopleSection } from "./people-section";
+
 export function BillEditor() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -16,7 +18,7 @@ export function BillEditor() {
       </div>
 
       <div className="space-y-8">
-        {/* People */}
+        <PeopleSection />
 
         {/* Items */}
 
