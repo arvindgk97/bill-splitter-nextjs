@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -61,14 +60,16 @@ export function AddPersonDialog({ open, onOpenChange, trigger }: AddPersonDialog
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger render={trigger as React.ReactElement} />}
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add Person</DialogTitle>
+      <DialogContent className="sm:max-w-md rounded-3xl p-7 border-none shadow-2xl bg-white">
+        <DialogHeader className="p-0 mb-4">
+          <DialogTitle className="text-2xl font-extrabold text-slate-950 tracking-tight">
+            Add Person
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="person-name" className="text-sm font-medium text-slate-700">
+            <label htmlFor="person-name" className="text-sm font-medium text-slate-400">
               Name
             </label>
             <input
@@ -77,10 +78,10 @@ export function AddPersonDialog({ open, onOpenChange, trigger }: AddPersonDialog
               placeholder="e.g. Yasukaze"
               value={name}
               onChange={handleChange}
-              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition ${
+              className={`w-full rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
                 error
                   ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  : "border-slate-300 focus:border-slate-950 focus:ring-1 focus:ring-slate-950"
+                  : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
               }`}
               autoFocus
             />
@@ -89,23 +90,23 @@ export function AddPersonDialog({ open, onOpenChange, trigger }: AddPersonDialog
             )}
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-2">
             <DialogClose render={
               <button
                 type="button"
                 onClick={() => handleOpenChange(false)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>
             } />
             <button
               type="submit"
-              className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+              className="rounded-full bg-[#2563eb] px-7 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95"
             >
               Add
             </button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

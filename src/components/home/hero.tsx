@@ -2,25 +2,20 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="px-4 py-20 text-center sm:py-28">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-6 inline-flex rounded-full border bg-white px-3 py-1 text-sm text-slate-600">
-          Simple bill splitting
-        </div>
-
-        <h1 className="text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">
+    <section className="px-6 pt-10 pb-6 text-center">
+      <div className="mx-auto max-w-2xl">
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-950 leading-[1.15]">
           Split bills without the headache.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-          Add your friends, assign items, and let us calculate
-          everyone&apos;s share automatically.
+        <p className="mt-3.5 text-base sm:text-lg text-slate-500 font-normal leading-relaxed">
+          Add your friends, items, and let us do the math.
         </p>
 
-        <div className="mt-8">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/bill"
-            className="inline-flex rounded-lg bg-slate-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex rounded-full bg-[#2563eb] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 active:scale-95"
           >
             Create New Bill
           </Link>

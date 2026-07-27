@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 
@@ -65,15 +64,6 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
     });
   };
 
-  const handleSelectAll = () => {
-    if (selectedPersonIds.length === people.length) {
-      setSelectedPersonIds([]);
-    } else {
-      setSelectedPersonIds(people.map((p) => p.id));
-      setErrors((err) => ({ ...err, people: undefined }));
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { name?: string; price?: string; quantity?: string; people?: string } = {};
@@ -117,15 +107,17 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Item" : "Add Item"}</DialogTitle>
+      <DialogContent className="sm:max-w-md rounded-3xl p-7 border-none shadow-2xl bg-white">
+        <DialogHeader className="p-0 mb-4">
+          <DialogTitle className="text-2xl font-extrabold text-slate-950 tracking-tight">
+            {isEditing ? "Edit Item" : "Add Item"}
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Item Name */}
           <div className="space-y-1.5">
-            <label htmlFor="item-name" className="text-sm font-medium text-slate-700">
+            <label htmlFor="item-name" className="text-sm font-medium text-slate-400">
               Item name
             </label>
             <input
@@ -137,107 +129,91 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
                 setName(e.target.value);
                 if (e.target.value.trim()) setErrors((prev) => ({ ...prev, name: undefined }));
               }}
-              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition ${
+              className={`w-full rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
                 errors.name
                   ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  : "border-slate-300 focus:border-slate-950 focus:ring-1 focus:ring-slate-950"
+                  : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
               }`}
               autoFocus
             />
             {errors.name && <p className="text-xs font-medium text-red-600">⚠ {errors.name}</p>}
           </div>
 
-          {/* Price & Quantity Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2 space-y-1.5">
-              <label htmlFor="item-price" className="text-sm font-medium text-slate-700">
-                Price per item (Rp)
-              </label>
-              <input
-                id="item-price"
-                type="number"
-                min="0"
-                step="500"
-                placeholder="e.g. 120000"
-                value={price}
-                onChange={(e) => {
-                  setPrice(e.target.value);
-                  if (Number(e.target.value) > 0) setErrors((prev) => ({ ...prev, price: undefined }));
-                }}
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition ${
-                  errors.price
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-slate-300 focus:border-slate-950 focus:ring-1 focus:ring-slate-950"
-                }`}
-              />
-              {errors.price && <p className="text-xs font-medium text-red-600">⚠ {errors.price}</p>}
-            </div>
+          {/* Price */}
+          <div className="space-y-1.5">
+            <label htmlFor="item-price" className="text-sm font-medium text-slate-400">
+              Price
+            </label>
+            <input
+              id="item-price"
+              type="number"
+              min="0"
+              step="500"
+              placeholder="120000"
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
+                if (Number(e.target.value) > 0) setErrors((prev) => ({ ...prev, price: undefined }));
+              }}
+              className={`w-full rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
+                errors.price
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
+              }`}
+            />
+            {errors.price && <p className="text-xs font-medium text-red-600">⚠ {errors.price}</p>}
+          </div>
 
-            <div className="space-y-1.5">
-              <label htmlFor="item-qty" className="text-sm font-medium text-slate-700">
-                Quantity
-              </label>
-              <input
-                id="item-qty"
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value) || 0;
-                  setQuantity(val);
-                  if (val >= 1) setErrors((prev) => ({ ...prev, quantity: undefined }));
-                }}
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition ${
-                  errors.quantity
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-slate-300 focus:border-slate-950 focus:ring-1 focus:ring-slate-950"
-                }`}
-              />
-              {errors.quantity && <p className="text-xs font-medium text-red-600">⚠ {errors.quantity}</p>}
-            </div>
+          {/* Quantity */}
+          <div className="space-y-1.5">
+            <label htmlFor="item-qty" className="text-sm font-medium text-slate-400">
+              Quantity
+            </label>
+            <input
+              id="item-qty"
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 0;
+                setQuantity(val);
+                if (val >= 1) setErrors((prev) => ({ ...prev, quantity: undefined }));
+              }}
+              className={`w-28 rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
+                errors.quantity
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
+              }`}
+            />
+            {errors.quantity && <p className="text-xs font-medium text-red-600">⚠ {errors.quantity}</p>}
           </div>
 
           {/* Who had this? */}
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700">
-                Who had this?
-              </label>
-              {people.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleSelectAll}
-                  className="text-xs font-medium text-blue-600 hover:underline"
-                >
-                  {selectedPersonIds.length === people.length ? "Deselect all" : "Select all"}
-                </button>
-              )}
-            </div>
+          <div className="space-y-2.5 pt-1">
+            <label className="text-sm font-medium text-slate-400">
+              Who had this?
+            </label>
 
             {people.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-3 text-center text-xs text-slate-500">
+              <div className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs text-slate-400">
                 No people added yet. Add people first to assign this item.
               </div>
             ) : (
-              <div
-                className={`max-h-40 space-y-2 overflow-y-auto rounded-lg border p-2.5 transition ${
-                  errors.people ? "border-red-500 bg-red-50/20" : "border-slate-200"
-                }`}
-              >
+              <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
                 {people.map((person) => {
                   const isChecked = selectedPersonIds.includes(person.id);
                   return (
                     <label
                       key={person.id}
-                      className="flex cursor-pointer items-center justify-between rounded-md p-1.5 transition hover:bg-slate-50"
+                      className="flex cursor-pointer items-center gap-3 py-1 transition select-none"
                     >
-                      <span className="text-sm text-slate-900">{person.name}</span>
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => togglePerson(person.id)}
-                        className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-950"
+                        className="h-5 w-5 rounded border-slate-300 text-[#2563eb] focus:ring-[#2563eb] cursor-pointer"
                       />
+                      <span className="text-base font-medium text-slate-900">{person.name}</span>
                     </label>
                   );
                 })}
@@ -246,23 +222,23 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
             {errors.people && <p className="text-xs font-medium text-red-600">⚠ {errors.people}</p>}
           </div>
 
-          <DialogFooter className="gap-2 pt-3">
+          <div className="flex items-center justify-end gap-3 pt-4">
             <DialogClose render={
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>
             } />
             <button
               type="submit"
-              className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+              className="rounded-full bg-[#2563eb] px-7 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95"
             >
-              {isEditing ? "Save Changes" : "Add Item"}
+              {isEditing ? "Save" : "Add Item"}
             </button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
