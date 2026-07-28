@@ -29,12 +29,12 @@ export function PeopleSection() {
             <h3 className="text-2xl font-extrabold text-slate-950">
               No people yet
             </h3>
-            <p className="mt-2 text-sm font-normal text-slate-400">
-              Add everyone sharing bill.
+            <p className="mt-2 text-sm font-normal text-slate-500">
+              Add everyone sharing this bill.
             </p>
             <button
               onClick={() => setIsAddDialogOpen(true)}
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#2563eb] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 active:scale-95"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#2563eb] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 active:scale-95 cursor-pointer"
             >
               + Add Person
             </button>
@@ -65,7 +65,7 @@ export function PeopleSection() {
 
             <button
               onClick={() => setIsAddDialogOpen(true)}
-              className="rounded-xl border border-[#2563eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#2563eb] shadow-xs hover:bg-blue-50/40 transition inline-flex items-center gap-1.5 active:scale-95"
+              className="rounded-xl border border-[#2563eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#2563eb] shadow-xs hover:bg-blue-50/40 transition inline-flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               + Add Person
             </button>

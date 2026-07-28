@@ -1,20 +1,19 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import {
-  Person,
-  BillItem,
-  BillAdjustment,
-  ExtraChargeType,
-  PersonSummary,
-} from "../types/bill";
-import { personSchema, itemSchema } from "../lib/validations/bill";
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { Person, BillItem, BillAdjustment, ExtraChargeType, PersonSummary } from '../types/bill';
+import { personSchema, itemSchema } from '../lib/validations/bill';
 
-export type {
-  Person,
-  BillItem,
-  BillAdjustment,
-  ExtraChargeType,
-  PersonSummary,
+export type { Person, BillItem, BillAdjustment, ExtraChargeType, PersonSummary };
+
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 };
 
 interface BillState {
@@ -56,15 +55,16 @@ interface BillState {
         },
     price?: number,
     quantity?: number,
-    personIds?: string[],
+    personIds?: string[]
   ) => boolean;
   removeItem: (id: string) => void;
-  updateItem: (id: string, item: Partial<Omit<BillItem, "id">>) => boolean;
+  updateItem: (id: string, item: Partial<Omit<BillItem, 'id'>>) => boolean;
   togglePersonAssignment: (itemId: string, personId: string) => void;
   assignAllToItem: (itemId: string) => void;
   unassignAllFromItem: (itemId: string) => void;
 
   // Utilities
+  resetBill: () => void;
   resetStore: () => void;
   loadSampleData: () => void;
 
@@ -78,14 +78,14 @@ interface BillState {
 }
 
 const DEFAULT_AVATAR_COLORS = [
-  "#F87171",
-  "#FB923C",
-  "#FBBF24",
-  "#34D399",
-  "#38BDF8",
-  "#818CF8",
-  "#C084FC",
-  "#F472B6",
+  '#F87171',
+  '#FB923C',
+  '#FBBF24',
+  '#34D399',
+  '#38BDF8',
+  '#818CF8',
+  '#C084FC',
+  '#F472B6',
 ];
 
 const getRandomColor = () => {
@@ -95,16 +95,16 @@ const getRandomColor = () => {
 };
 
 const initialBillState = {
-  title: "Tagihan Baru",
+  title: 'Tagihan Baru',
   people: [],
   members: [],
   items: [],
   tax: 0,
-  taxType: "percentage" as ExtraChargeType,
+  taxType: 'percentage' as ExtraChargeType,
   serviceCharge: 0,
-  serviceChargeType: "percentage" as ExtraChargeType,
+  serviceChargeType: 'percentage' as ExtraChargeType,
   discount: 0,
-  discountType: "fixed" as ExtraChargeType,
+  discountType: 'fixed' as ExtraChargeType,
   adjustments: {
     taxRate: 0,
     serviceChargeRate: 0,
@@ -172,7 +172,7 @@ export const useBillStore = create<BillState>()(
         if (!validation.success) return false;
 
         const newPerson: Person = {
-          id: crypto.randomUUID(),
+          id: generateId(),
           name: validation.data.name,
           avatarColor: getRandomColor(),
         };
@@ -228,7 +228,7 @@ export const useBillStore = create<BillState>()(
           personIds?: string[];
           assignedMemberIds?: string[];
         };
-        if (typeof nameOrItem === "string") {
+        if (typeof nameOrItem === 'string') {
           itemObj = {
             name: nameOrItem,
             price: priceArg ?? 0,
@@ -246,7 +246,7 @@ export const useBillStore = create<BillState>()(
         if (!validation.success) return false;
 
         const newItem: BillItem = {
-          id: crypto.randomUUID(),
+          id: generateId(),
           name: validation.data.name,
           price: validation.data.price,
           quantity: validation.data.quantity,
@@ -332,45 +332,49 @@ export const useBillStore = create<BillState>()(
         }));
       },
 
+      resetBill: () => {
+        set({ ...initialBillState });
+      },
+
       resetStore: () => {
         set({ ...initialBillState });
       },
 
       loadSampleData: () => {
-        const p1Id = crypto.randomUUID();
-        const p2Id = crypto.randomUUID();
-        const p3Id = crypto.randomUUID();
+        const p1Id = generateId();
+        const p2Id = generateId();
+        const p3Id = generateId();
 
         const samplePeople = [
-          { id: p1Id, name: "Budi", avatarColor: "#38BDF8" },
-          { id: p2Id, name: "Siti", avatarColor: "#F472B6" },
-          { id: p3Id, name: "Andi", avatarColor: "#34D399" },
+          { id: p1Id, name: 'Budi', avatarColor: '#38BDF8' },
+          { id: p2Id, name: 'Siti', avatarColor: '#F472B6' },
+          { id: p3Id, name: 'Andi', avatarColor: '#34D399' },
         ];
 
         set({
-          title: "Makan Malam Resto Bintang",
+          title: 'Makan Malam Resto Bintang',
           people: samplePeople,
           members: samplePeople,
           items: [
             {
-              id: crypto.randomUUID(),
-              name: "Nasi Goreng Spesial",
+              id: generateId(),
+              name: 'Nasi Goreng Spesial',
               price: 35000,
               quantity: 2,
               personIds: [p1Id, p2Id],
               assignedMemberIds: [p1Id, p2Id],
             },
             {
-              id: crypto.randomUUID(),
-              name: "Ayam Bakar Madu",
+              id: generateId(),
+              name: 'Ayam Bakar Madu',
               price: 45000,
               quantity: 1,
               personIds: [p3Id],
               assignedMemberIds: [p3Id],
             },
             {
-              id: crypto.randomUUID(),
-              name: "Es Teh Manis",
+              id: generateId(),
+              name: 'Es Teh Manis',
               price: 8000,
               quantity: 3,
               personIds: [p1Id, p2Id, p3Id],
@@ -378,11 +382,11 @@ export const useBillStore = create<BillState>()(
             },
           ],
           tax: 11,
-          taxType: "percentage",
+          taxType: 'percentage',
           serviceCharge: 5,
-          serviceChargeType: "percentage",
+          serviceChargeType: 'percentage',
           discount: 10000,
-          discountType: "fixed",
+          discountType: 'fixed',
           adjustments: {
             taxRate: 11,
             serviceChargeRate: 5,
@@ -400,7 +404,7 @@ export const useBillStore = create<BillState>()(
       getTaxAmount: () => {
         const { tax, taxType } = get();
         const subtotal = get().getSubtotal();
-        if (taxType === "percentage") {
+        if (taxType === 'percentage') {
           return (subtotal * tax) / 100;
         }
         return tax;
@@ -409,7 +413,7 @@ export const useBillStore = create<BillState>()(
       getServiceChargeAmount: () => {
         const { serviceCharge, serviceChargeType } = get();
         const subtotal = get().getSubtotal();
-        if (serviceChargeType === "percentage") {
+        if (serviceChargeType === 'percentage') {
           return (subtotal * serviceCharge) / 100;
         }
         return serviceCharge;
@@ -418,7 +422,7 @@ export const useBillStore = create<BillState>()(
       getDiscountAmount: () => {
         const { discount, discountType } = get();
         const subtotal = get().getSubtotal();
-        if (discountType === "percentage") {
+        if (discountType === 'percentage') {
           return (subtotal * discount) / 100;
         }
         return discount;
@@ -478,7 +482,7 @@ export const useBillStore = create<BillState>()(
       },
     }),
     {
-      name: "bill-splitter-storage",
+      name: 'bill-splitter-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         title: state.title,

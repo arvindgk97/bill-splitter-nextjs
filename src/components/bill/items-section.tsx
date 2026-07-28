@@ -29,15 +29,15 @@ export function ItemsSection() {
             <h3 className="text-2xl font-extrabold text-slate-950">
               No items yet
             </h3>
-            <p className="mt-2 text-sm font-normal text-slate-400">
-              Add your first item to start splitting bill.
+            <p className="mt-2 text-sm font-normal text-slate-500">
+              Add the food and drinks from your bill.
             </p>
             <button
               onClick={() => {
                 setEditingItem(null);
                 setIsAddDialogOpen(true);
               }}
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#2563eb] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 active:scale-95"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-[#2563eb] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 active:scale-95 cursor-pointer"
             >
               + Add Item
             </button>
@@ -50,7 +50,7 @@ export function ItemsSection() {
               ITEMS
             </h2>
             <p className="text-sm font-normal text-slate-500">
-              Add everything ordered in this bill.
+              Add the food and drinks from your bill.
             </p>
           </div>
 
@@ -73,7 +73,7 @@ export function ItemsSection() {
                 setEditingItem(null);
                 setIsAddDialogOpen(true);
               }}
-              className="rounded-xl border border-[#2563eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#2563eb] shadow-xs hover:bg-blue-50/40 transition inline-flex items-center gap-1.5 active:scale-95"
+              className="rounded-xl border border-[#2563eb] bg-white px-5 py-2.5 text-sm font-semibold text-[#2563eb] shadow-xs hover:bg-blue-50/40 transition inline-flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               + Add Item
             </button>
