@@ -26,7 +26,9 @@ export function ItemsSection() {
           </div>
 
           <div className="rounded-3xl border border-slate-100 bg-white px-6 py-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center">
-            <h3 className="text-2xl font-extrabold text-slate-950">No items yet</h3>
+            <h3 className="text-2xl font-extrabold text-slate-950">
+              No items yet
+            </h3>
             <p className="mt-2 text-sm font-normal text-slate-400">
               Add your first item to start splitting bill.
             </p>

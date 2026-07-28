@@ -1,9 +1,21 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { Person, BillItem, ExtraChargeType, PersonSummary } from '../types/bill';
-import { personSchema, itemSchema } from '../lib/validations/bill';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import {
+  Person,
+  BillItem,
+  BillAdjustment,
+  ExtraChargeType,
+  PersonSummary,
+} from "../types/bill";
+import { personSchema, itemSchema } from "../lib/validations/bill";
 
-export type { Person, BillItem, ExtraChargeType, PersonSummary };
+export type {
+  Person,
+  BillItem,
+  BillAdjustment,
+  ExtraChargeType,
+  PersonSummary,
+};
 
 interface BillState {
   // State
@@ -17,12 +29,14 @@ interface BillState {
   serviceChargeType: ExtraChargeType;
   discount: number;
   discountType: ExtraChargeType;
+  adjustments: BillAdjustment;
 
   // Actions - Title & Settings
   setTitle: (title: string) => void;
   setTax: (tax: number, type?: ExtraChargeType) => void;
   setServiceCharge: (serviceCharge: number, type?: ExtraChargeType) => void;
   setDiscount: (discount: number, type?: ExtraChargeType) => void;
+  updateAdjustments: (adjustments: Partial<BillAdjustment>) => void;
 
   // Actions - Members
   addPerson: (name: string) => boolean;
@@ -31,13 +45,21 @@ interface BillState {
 
   // Actions - Items
   addItem: (
-    nameOrItem: string | { name: string; price: number; quantity?: number; personIds?: string[]; assignedMemberIds?: string[] },
+    nameOrItem:
+      | string
+      | {
+          name: string;
+          price: number;
+          quantity?: number;
+          personIds?: string[];
+          assignedMemberIds?: string[];
+        },
     price?: number,
     quantity?: number,
-    personIds?: string[]
+    personIds?: string[],
   ) => boolean;
   removeItem: (id: string) => void;
-  updateItem: (id: string, item: Partial<Omit<BillItem, 'id'>>) => boolean;
+  updateItem: (id: string, item: Partial<Omit<BillItem, "id">>) => boolean;
   togglePersonAssignment: (itemId: string, personId: string) => void;
   assignAllToItem: (itemId: string) => void;
   unassignAllFromItem: (itemId: string) => void;
@@ -56,25 +78,38 @@ interface BillState {
 }
 
 const DEFAULT_AVATAR_COLORS = [
-  '#F87171', '#FB923C', '#FBBF24', '#34D399',
-  '#38BDF8', '#818CF8', '#C084FC', '#F472B6',
+  "#F87171",
+  "#FB923C",
+  "#FBBF24",
+  "#34D399",
+  "#38BDF8",
+  "#818CF8",
+  "#C084FC",
+  "#F472B6",
 ];
 
 const getRandomColor = () => {
-  return DEFAULT_AVATAR_COLORS[Math.floor(Math.random() * DEFAULT_AVATAR_COLORS.length)];
+  return DEFAULT_AVATAR_COLORS[
+    Math.floor(Math.random() * DEFAULT_AVATAR_COLORS.length)
+  ];
 };
 
 const initialBillState = {
-  title: 'Tagihan Baru',
+  title: "Tagihan Baru",
   people: [],
   members: [],
   items: [],
   tax: 0,
-  taxType: 'percentage' as ExtraChargeType,
+  taxType: "percentage" as ExtraChargeType,
   serviceCharge: 0,
-  serviceChargeType: 'percentage' as ExtraChargeType,
+  serviceChargeType: "percentage" as ExtraChargeType,
   discount: 0,
-  discountType: 'fixed' as ExtraChargeType,
+  discountType: "fixed" as ExtraChargeType,
+  adjustments: {
+    taxRate: 0,
+    serviceChargeRate: 0,
+    discountAmount: 0,
+  },
 };
 
 export const useBillStore = create<BillState>()(
@@ -85,17 +120,51 @@ export const useBillStore = create<BillState>()(
       // Settings actions
       setTitle: (title) => set({ title }),
       setTax: (tax, taxType) =>
-        set((state) => ({ tax: Math.max(0, tax), taxType: taxType ?? state.taxType })),
+        set((state) => {
+          const validTax = Math.max(0, tax);
+          return {
+            tax: validTax,
+            taxType: taxType ?? state.taxType,
+            adjustments: { ...state.adjustments, taxRate: validTax },
+          };
+        }),
       setServiceCharge: (serviceCharge, serviceChargeType) =>
-        set((state) => ({
-          serviceCharge: Math.max(0, serviceCharge),
-          serviceChargeType: serviceChargeType ?? state.serviceChargeType,
-        })),
+        set((state) => {
+          const validService = Math.max(0, serviceCharge);
+          return {
+            serviceCharge: validService,
+            serviceChargeType: serviceChargeType ?? state.serviceChargeType,
+            adjustments: {
+              ...state.adjustments,
+              serviceChargeRate: validService,
+            },
+          };
+        }),
       setDiscount: (discount, discountType) =>
-        set((state) => ({
-          discount: Math.max(0, discount),
-          discountType: discountType ?? state.discountType,
-        })),
+        set((state) => {
+          const validDiscount = Math.max(0, discount);
+          return {
+            discount: validDiscount,
+            discountType: discountType ?? state.discountType,
+            adjustments: {
+              ...state.adjustments,
+              discountAmount: validDiscount,
+            },
+          };
+        }),
+      updateAdjustments: (newAdjustments) =>
+        set((state) => {
+          const updated = {
+            ...state.adjustments,
+            ...newAdjustments,
+          };
+          return {
+            adjustments: updated,
+            tax: updated.taxRate,
+            serviceCharge: updated.serviceChargeRate,
+            discount: updated.discountAmount,
+          };
+        }),
 
       // Member actions
       addPerson: (name) => {
@@ -122,7 +191,16 @@ export const useBillStore = create<BillState>()(
             members: updated,
             items: state.items.map((item) => ({
               ...item,
-              assignedMemberIds: item.assignedMemberIds.filter((mId) => mId !== id),
+              personIds: (
+                item.personIds ||
+                item.assignedMemberIds ||
+                []
+              ).filter((mId) => mId !== id),
+              assignedMemberIds: (
+                item.assignedMemberIds ||
+                item.personIds ||
+                []
+              ).filter((mId) => mId !== id),
             })),
           };
         });
@@ -134,7 +212,7 @@ export const useBillStore = create<BillState>()(
 
         set((state) => {
           const updated = state.people.map((m) =>
-            m.id === id ? { ...m, name: validation.data.name } : m
+            m.id === id ? { ...m, name: validation.data.name } : m,
           );
           return { people: updated, members: updated };
         });
@@ -143,8 +221,14 @@ export const useBillStore = create<BillState>()(
 
       // Item actions
       addItem: (nameOrItem, priceArg, quantityArg, personIdsArg) => {
-        let itemObj: { name: string; price: number; quantity?: number; personIds?: string[]; assignedMemberIds?: string[] };
-        if (typeof nameOrItem === 'string') {
+        let itemObj: {
+          name: string;
+          price: number;
+          quantity?: number;
+          personIds?: string[];
+          assignedMemberIds?: string[];
+        };
+        if (typeof nameOrItem === "string") {
           itemObj = {
             name: nameOrItem,
             price: priceArg ?? 0,
@@ -155,7 +239,10 @@ export const useBillStore = create<BillState>()(
           itemObj = nameOrItem;
         }
         const pIds = itemObj.personIds || itemObj.assignedMemberIds || [];
-        const validation = itemSchema.safeParse({ ...itemObj, assignedMemberIds: pIds });
+        const validation = itemSchema.safeParse({
+          ...itemObj,
+          assignedMemberIds: pIds,
+        });
         if (!validation.success) return false;
 
         const newItem: BillItem = {
@@ -171,7 +258,9 @@ export const useBillStore = create<BillState>()(
       },
 
       removeItem: (id) => {
-        set((state) => ({ items: state.items.filter((item) => item.id !== id) }));
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== id),
+        }));
       },
 
       updateItem: (id, updatedFields) => {
@@ -179,8 +268,12 @@ export const useBillStore = create<BillState>()(
         if (!currentItem) return false;
 
         const merged = { ...currentItem, ...updatedFields };
-        const personIds = (merged as any).personIds || merged.assignedMemberIds || [];
-        const validation = itemSchema.safeParse({ ...merged, assignedMemberIds: personIds });
+        const personIds =
+          (merged as any).personIds || merged.assignedMemberIds || [];
+        const validation = itemSchema.safeParse({
+          ...merged,
+          assignedMemberIds: personIds,
+        });
         if (!validation.success) return false;
 
         set((state) => ({
@@ -192,7 +285,7 @@ export const useBillStore = create<BillState>()(
                   personIds: validation.data.assignedMemberIds,
                   assignedMemberIds: validation.data.assignedMemberIds,
                 }
-              : item
+              : item,
           ),
         }));
         return true;
@@ -248,17 +341,20 @@ export const useBillStore = create<BillState>()(
         const p2Id = crypto.randomUUID();
         const p3Id = crypto.randomUUID();
 
+        const samplePeople = [
+          { id: p1Id, name: "Budi", avatarColor: "#38BDF8" },
+          { id: p2Id, name: "Siti", avatarColor: "#F472B6" },
+          { id: p3Id, name: "Andi", avatarColor: "#34D399" },
+        ];
+
         set({
-          title: 'Makan Malam Resto Bintang',
-          members: [
-            { id: p1Id, name: 'Budi', avatarColor: '#38BDF8' },
-            { id: p2Id, name: 'Siti', avatarColor: '#F472B6' },
-            { id: p3Id, name: 'Andi', avatarColor: '#34D399' },
-          ],
+          title: "Makan Malam Resto Bintang",
+          people: samplePeople,
+          members: samplePeople,
           items: [
             {
               id: crypto.randomUUID(),
-              name: 'Nasi Goreng Spesial',
+              name: "Nasi Goreng Spesial",
               price: 35000,
               quantity: 2,
               personIds: [p1Id, p2Id],
@@ -266,7 +362,7 @@ export const useBillStore = create<BillState>()(
             },
             {
               id: crypto.randomUUID(),
-              name: 'Ayam Bakar Madu',
+              name: "Ayam Bakar Madu",
               price: 45000,
               quantity: 1,
               personIds: [p3Id],
@@ -274,7 +370,7 @@ export const useBillStore = create<BillState>()(
             },
             {
               id: crypto.randomUUID(),
-              name: 'Es Teh Manis',
+              name: "Es Teh Manis",
               price: 8000,
               quantity: 3,
               personIds: [p1Id, p2Id, p3Id],
@@ -282,11 +378,16 @@ export const useBillStore = create<BillState>()(
             },
           ],
           tax: 11,
-          taxType: 'percentage',
+          taxType: "percentage",
           serviceCharge: 5,
-          serviceChargeType: 'percentage',
+          serviceChargeType: "percentage",
           discount: 10000,
-          discountType: 'fixed',
+          discountType: "fixed",
+          adjustments: {
+            taxRate: 11,
+            serviceChargeRate: 5,
+            discountAmount: 10000,
+          },
         });
       },
 
@@ -299,7 +400,7 @@ export const useBillStore = create<BillState>()(
       getTaxAmount: () => {
         const { tax, taxType } = get();
         const subtotal = get().getSubtotal();
-        if (taxType === 'percentage') {
+        if (taxType === "percentage") {
           return (subtotal * tax) / 100;
         }
         return tax;
@@ -308,7 +409,7 @@ export const useBillStore = create<BillState>()(
       getServiceChargeAmount: () => {
         const { serviceCharge, serviceChargeType } = get();
         const subtotal = get().getSubtotal();
-        if (serviceChargeType === 'percentage') {
+        if (serviceChargeType === "percentage") {
           return (subtotal * serviceCharge) / 100;
         }
         return serviceCharge;
@@ -317,7 +418,7 @@ export const useBillStore = create<BillState>()(
       getDiscountAmount: () => {
         const { discount, discountType } = get();
         const subtotal = get().getSubtotal();
-        if (discountType === 'percentage') {
+        if (discountType === "percentage") {
           return (subtotal * discount) / 100;
         }
         return discount;
@@ -328,23 +429,28 @@ export const useBillStore = create<BillState>()(
         const taxAmount = get().getTaxAmount();
         const serviceChargeAmount = get().getServiceChargeAmount();
         const discountAmount = get().getDiscountAmount();
-        return Math.max(0, subtotal + taxAmount + serviceChargeAmount - discountAmount);
+        return Math.max(
+          0,
+          subtotal + taxAmount + serviceChargeAmount - discountAmount,
+        );
       },
 
       getPersonSummaries: () => {
-        const { members, items } = get();
+        const { people, members, items } = get();
+        const activePeople = people.length ? people : members;
         const subtotal = get().getSubtotal();
         const taxAmount = get().getTaxAmount();
         const serviceChargeAmount = get().getServiceChargeAmount();
         const discountAmount = get().getDiscountAmount();
 
-        return members.map((person) => {
+        return activePeople.map((person) => {
           let personSubtotal = 0;
           let assignedItemsCount = 0;
 
           items.forEach((item) => {
-            if (item.assignedMemberIds.includes(person.id) && item.assignedMemberIds.length > 0) {
-              const share = (item.price * item.quantity) / item.assignedMemberIds.length;
+            const pIds = item.personIds || item.assignedMemberIds || [];
+            if (pIds.includes(person.id) && pIds.length > 0) {
+              const share = (item.price * item.quantity) / pIds.length;
               personSubtotal += share;
               assignedItemsCount += 1;
             }
@@ -354,7 +460,10 @@ export const useBillStore = create<BillState>()(
           const personTax = taxAmount * ratio;
           const personService = serviceChargeAmount * ratio;
           const personDiscount = discountAmount * ratio;
-          const personTotal = Math.max(0, personSubtotal + personTax + personService - personDiscount);
+          const personTotal = Math.max(
+            0,
+            personSubtotal + personTax + personService - personDiscount,
+          );
 
           return {
             person,
@@ -369,11 +478,12 @@ export const useBillStore = create<BillState>()(
       },
     }),
     {
-      name: 'bill-splitter-storage',
+      name: "bill-splitter-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         title: state.title,
-        members: state.members,
+        people: state.people,
+        members: state.people,
         items: state.items,
         tax: state.tax,
         taxType: state.taxType,
@@ -381,7 +491,33 @@ export const useBillStore = create<BillState>()(
         serviceChargeType: state.serviceChargeType,
         discount: state.discount,
         discountType: state.discountType,
+        adjustments: state.adjustments,
       }),
-    }
-  )
+      merge: (persistedState: any, currentState) => {
+        const state = { ...currentState, ...(persistedState as object) };
+        const peopleList = state.people?.length
+          ? state.people
+          : state.members?.length
+            ? state.members
+            : [];
+        const adjustments = state.adjustments || {
+          taxRate: state.tax || 0,
+          serviceChargeRate: state.serviceCharge || 0,
+          discountAmount: state.discount || 0,
+        };
+
+        return {
+          ...state,
+          people: peopleList,
+          members: peopleList,
+          adjustments,
+          items: (state.items || []).map((item: any) => ({
+            ...item,
+            personIds: item.personIds || item.assignedMemberIds || [],
+            assignedMemberIds: item.assignedMemberIds || item.personIds || [],
+          })),
+        };
+      },
+    },
+  ),
 );

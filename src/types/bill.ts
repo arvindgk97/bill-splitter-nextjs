@@ -1,4 +1,4 @@
-export type ExtraChargeType = 'percentage' | 'fixed';
+export type ExtraChargeType = "percentage" | "fixed";
 
 export interface Person {
   id: string;
@@ -13,6 +13,12 @@ export interface BillItem {
   quantity: number;
   personIds: string[];
   assignedMemberIds: string[];
+}
+
+export interface BillAdjustment {
+  taxRate: number;
+  serviceChargeRate: number;
+  discountAmount: number;
 }
 
 export interface BillSettings {

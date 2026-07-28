@@ -6,7 +6,7 @@ export default function BillPage() {
     <div className="min-h-screen bg-[#f6f8fb] text-slate-900 flex flex-col">
       {/* Editor Header */}
       <header className="w-full bg-[#f6f8fb]">
-        <div className="mx-auto flex h-16 max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl items-center px-6">
+        <div className="mx-auto flex h-16 max-w-md sm:max-w-xl md:max-w-4xl lg:max-w-6xl items-center px-6">
           <Link
             href="/"
             className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-slate-950 hover:opacity-80 transition"

@@ -37,11 +37,21 @@ export function PersonCard({ person, index = 0, onEdit }: PersonCardProps) {
       <div className="flex items-center gap-3.5">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-full text-base font-bold text-white shadow-xs shrink-0 ${bgClass}`}
-          style={person.avatarColor ? { backgroundColor: person.avatarColor } : undefined}
+          style={
+            person.avatarColor
+              ? { backgroundColor: person.avatarColor }
+              : undefined
+          }
         >
-          {person.name ? person.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
+          {person.name ? (
+            person.name.charAt(0).toUpperCase()
+          ) : (
+            <User className="h-5 w-5" />
+          )}
         </div>
-        <span className="font-semibold text-slate-900 text-base">{person.name}</span>
+        <span className="font-semibold text-slate-900 text-base">
+          {person.name}
+        </span>
       </div>
 
       <DropdownMenu>
@@ -57,7 +67,10 @@ export function PersonCard({ person, index = 0, onEdit }: PersonCardProps) {
           }
         />
         <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuItem onClick={() => onEdit?.(person)} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => onEdit?.(person)}
+            className="cursor-pointer"
+          >
             <Pencil className="mr-2 h-4 w-4" />
             Edit name
           </DropdownMenuItem>

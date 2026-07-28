@@ -17,7 +17,11 @@ type EditPersonDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function EditPersonDialog({ person, open, onOpenChange }: EditPersonDialogProps) {
+export function EditPersonDialog({
+  person,
+  open,
+  onOpenChange,
+}: EditPersonDialogProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const updatePerson = useBillStore((state) => state.updatePerson);
@@ -61,7 +65,10 @@ export function EditPersonDialog({ person, open, onOpenChange }: EditPersonDialo
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="edit-person-name" className="text-sm font-medium text-slate-400">
+            <label
+              htmlFor="edit-person-name"
+              className="text-sm font-medium text-slate-400"
+            >
               Name
             </label>
             <input
@@ -83,15 +90,17 @@ export function EditPersonDialog({ person, open, onOpenChange }: EditPersonDialo
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <DialogClose render={
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
-              >
-                Cancel
-              </button>
-            } />
+            <DialogClose
+              render={
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+              }
+            />
             <button
               type="submit"
               className="rounded-full bg-[#2563eb] px-7 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95"

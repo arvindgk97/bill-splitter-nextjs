@@ -17,7 +17,11 @@ type AddItemDialogProps = {
   initialItem?: BillItem | null;
 };
 
-export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialogProps) {
+export function AddItemDialog({
+  open,
+  onOpenChange,
+  initialItem,
+}: AddItemDialogProps) {
   const people = useBillStore((state) => state.people);
   const addItem = useBillStore((state) => state.addItem);
   const updateItem = useBillStore((state) => state.updateItem);
@@ -41,7 +45,9 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
         setName(initialItem.name);
         setPrice(String(initialItem.price));
         setQuantity(initialItem.quantity);
-        setSelectedPersonIds(initialItem.personIds || initialItem.assignedMemberIds || []);
+        setSelectedPersonIds(
+          initialItem.personIds || initialItem.assignedMemberIds || [],
+        );
       } else {
         setName("");
         setPrice("");
@@ -66,7 +72,12 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { name?: string; price?: string; quantity?: string; people?: string } = {};
+    const newErrors: {
+      name?: string;
+      price?: string;
+      quantity?: string;
+      people?: string;
+    } = {};
 
     if (!name.trim()) {
       newErrors.name = "Item name is required.";
@@ -117,7 +128,10 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Item Name */}
           <div className="space-y-1.5">
-            <label htmlFor="item-name" className="text-sm font-medium text-slate-400">
+            <label
+              htmlFor="item-name"
+              className="text-sm font-medium text-slate-400"
+            >
               Item name
             </label>
             <input
@@ -127,7 +141,8 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, name: undefined }));
+                if (e.target.value.trim())
+                  setErrors((prev) => ({ ...prev, name: undefined }));
               }}
               className={`w-full rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
                 errors.name
@@ -136,12 +151,19 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
               }`}
               autoFocus
             />
-            {errors.name && <p className="text-xs font-medium text-red-600">⚠ {errors.name}</p>}
+            {errors.name && (
+              <p className="text-xs font-medium text-red-600">
+                ⚠ {errors.name}
+              </p>
+            )}
           </div>
 
           {/* Price */}
           <div className="space-y-1.5">
-            <label htmlFor="item-price" className="text-sm font-medium text-slate-400">
+            <label
+              htmlFor="item-price"
+              className="text-sm font-medium text-slate-400"
+            >
               Price
             </label>
             <input
@@ -153,7 +175,8 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
               value={price}
               onChange={(e) => {
                 setPrice(e.target.value);
-                if (Number(e.target.value) > 0) setErrors((prev) => ({ ...prev, price: undefined }));
+                if (Number(e.target.value) > 0)
+                  setErrors((prev) => ({ ...prev, price: undefined }));
               }}
               className={`w-full rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
                 errors.price
@@ -161,12 +184,19 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
                   : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
               }`}
             />
-            {errors.price && <p className="text-xs font-medium text-red-600">⚠ {errors.price}</p>}
+            {errors.price && (
+              <p className="text-xs font-medium text-red-600">
+                ⚠ {errors.price}
+              </p>
+            )}
           </div>
 
           {/* Quantity */}
           <div className="space-y-1.5">
-            <label htmlFor="item-qty" className="text-sm font-medium text-slate-400">
+            <label
+              htmlFor="item-qty"
+              className="text-sm font-medium text-slate-400"
+            >
               Quantity
             </label>
             <input
@@ -177,7 +207,8 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
               onChange={(e) => {
                 const val = parseInt(e.target.value) || 0;
                 setQuantity(val);
-                if (val >= 1) setErrors((prev) => ({ ...prev, quantity: undefined }));
+                if (val >= 1)
+                  setErrors((prev) => ({ ...prev, quantity: undefined }));
               }}
               className={`w-28 rounded-xl border px-4 py-3 text-base text-slate-900 outline-none transition ${
                 errors.quantity
@@ -185,7 +216,11 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
                   : "border-slate-200 focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb]"
               }`}
             />
-            {errors.quantity && <p className="text-xs font-medium text-red-600">⚠ {errors.quantity}</p>}
+            {errors.quantity && (
+              <p className="text-xs font-medium text-red-600">
+                ⚠ {errors.quantity}
+              </p>
+            )}
           </div>
 
           {/* Who had this? */}
@@ -213,25 +248,33 @@ export function AddItemDialog({ open, onOpenChange, initialItem }: AddItemDialog
                         onChange={() => togglePerson(person.id)}
                         className="h-5 w-5 rounded border-slate-300 text-[#2563eb] focus:ring-[#2563eb] cursor-pointer"
                       />
-                      <span className="text-base font-medium text-slate-900">{person.name}</span>
+                      <span className="text-base font-medium text-slate-900">
+                        {person.name}
+                      </span>
                     </label>
                   );
                 })}
               </div>
             )}
-            {errors.people && <p className="text-xs font-medium text-red-600">⚠ {errors.people}</p>}
+            {errors.people && (
+              <p className="text-xs font-medium text-red-600">
+                ⚠ {errors.people}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4">
-            <DialogClose render={
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
-              >
-                Cancel
-              </button>
-            } />
+            <DialogClose
+              render={
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+              }
+            />
             <button
               type="submit"
               className="rounded-full bg-[#2563eb] px-7 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95"

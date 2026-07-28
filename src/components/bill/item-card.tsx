@@ -43,7 +43,9 @@ export function ItemCard({ item, onEdit }: ItemCardProps) {
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition hover:shadow-md">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-extrabold text-slate-950 text-lg sm:text-xl">{item.name}</h3>
+          <h3 className="font-extrabold text-slate-950 text-lg sm:text-xl">
+            {item.name}
+          </h3>
           <p className="mt-1 text-base font-medium text-slate-700">
             {formatCurrency(item.price)} × {item.quantity}
           </p>
@@ -62,7 +64,10 @@ export function ItemCard({ item, onEdit }: ItemCardProps) {
             }
           />
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => onEdit?.(item)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => onEdit?.(item)}
+              className="cursor-pointer"
+            >
               <Pencil className="mr-2 h-4 w-4" />
               Edit item
             </DropdownMenuItem>
@@ -91,13 +96,20 @@ export function ItemCard({ item, onEdit }: ItemCardProps) {
                 const globalIndex = people.findIndex((p) => p.id === person.id);
                 const bgClass = person.avatarColor
                   ? ""
-                  : AVATAR_PALETTE[(globalIndex >= 0 ? globalIndex : 0) % AVATAR_PALETTE.length];
+                  : AVATAR_PALETTE[
+                      (globalIndex >= 0 ? globalIndex : 0) %
+                        AVATAR_PALETTE.length
+                    ];
 
                 return (
                   <div
                     key={person.id}
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white shadow-xs ${bgClass}`}
-                    style={person.avatarColor ? { backgroundColor: person.avatarColor } : undefined}
+                    style={
+                      person.avatarColor
+                        ? { backgroundColor: person.avatarColor }
+                        : undefined
+                    }
                     title={person.name}
                   >
                     {person.name ? person.name.charAt(0).toUpperCase() : "?"}
