@@ -36,12 +36,18 @@ export function ShareButton() {
         return;
       }
 
-      // Fallback to Copy URL if Web Share API is not available
-      const success = await copyToClipboard(shareUrl);
-      if (success) {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
+      // Fallback to Clipboard
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        await copyToClipboard(shareUrl);
       }
+
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     } catch (error: any) {
       if (error?.name !== "AbortError") {
         console.error("Share failed:", error);
