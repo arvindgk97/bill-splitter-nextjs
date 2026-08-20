@@ -10,18 +10,30 @@ export function decodeBill(encoded: string): ShareableBill | null {
   }
 
   try {
-    // Clean up payload if extra text/spaces were appended by navigator.share or external apps
-    const rawPayload = encoded.trim().split(/[\s%20]+/)[0];
-    const decodedBase64 = decodeURIComponent(rawPayload);
+    // Clean up payload if extra text/spaces were appended by external apps or share sheets
+    let rawPayload = encoded.trim().split(/\s+/)[0];
+    
+    // Safely URL-decode base64 string
+    try {
+      rawPayload = decodeURIComponent(rawPayload);
+    } catch {
+      // Use rawPayload as is if decodeURIComponent fails
+    }
 
     let uriEncoded: string;
     if (typeof window !== "undefined" && typeof window.atob === "function") {
-      uriEncoded = window.atob(decodedBase64);
+      uriEncoded = window.atob(rawPayload);
     } else {
-      uriEncoded = Buffer.from(decodedBase64, "base64").toString("utf-8");
+      uriEncoded = Buffer.from(rawPayload, "base64").toString("utf-8");
     }
 
-    const json = decodeURIComponent(uriEncoded);
+    // Safely URL-decode the JSON string
+    let json: string;
+    try {
+      json = decodeURIComponent(uriEncoded);
+    } catch {
+      json = uriEncoded;
+    }
 
     // Extract valid JSON object substring if trailing text exists
     const firstBrace = json.indexOf("{");
