@@ -9,6 +9,7 @@ import { copyToClipboard } from "@/lib/copy-to-clipboard";
 import { useBillStore } from "@/store/bill-store";
 import { Copy, Check, Calculator } from "lucide-react";
 import { ShareButton } from "./share-button";
+import { toast } from "sonner";
 
 type BillSummaryProps = {
   calculation: BillCalculation | null;
@@ -49,6 +50,7 @@ export function BillSummary({
 
     if (success) {
       setCopied(true);
+      toast.success("Bill summary copied");
       setTimeout(() => setCopied(false), 2500);
     }
   };

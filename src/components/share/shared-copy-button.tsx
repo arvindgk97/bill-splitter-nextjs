@@ -6,6 +6,7 @@ import { BillCalculation } from "@/lib/calculations/types";
 import { generateSummary } from "@/lib/generate-summary";
 import { copyToClipboard } from "@/lib/copy-to-clipboard";
 import { Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 type SharedCopyButtonProps = {
   calculation: BillCalculation;
@@ -23,6 +24,7 @@ export function SharedCopyButton({
     const success = await copyToClipboard(summaryText);
     if (success) {
       setCopied(true);
+      toast.success("Bill summary copied");
       setTimeout(() => setCopied(false), 2500);
     }
   };

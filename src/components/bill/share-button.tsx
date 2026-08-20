@@ -5,6 +5,7 @@ import { useBillStore } from "@/store/bill-store";
 import { createShareUrl } from "@/lib/share/create-share-url";
 import { copyToClipboard } from "@/lib/copy-to-clipboard";
 import { Share2, Check } from "lucide-react";
+import { toast } from "sonner";
 
 export function ShareButton() {
   const people = useBillStore((state) => state.people);
@@ -46,6 +47,7 @@ export function ShareButton() {
       }
 
       setCopied(true);
+      toast.success("Share link copied");
 
       setTimeout(() => {
         setCopied(false);
