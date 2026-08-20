@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Person, BillItem } from "@/types/bill";
+import { Person } from "@/types/bill";
 import { BillCalculation } from "@/lib/calculations/types";
 import { formatCurrency } from "@/lib/format-currency";
 import { generateSummary } from "@/lib/generate-summary";
 import { copyToClipboard } from "@/lib/copy-to-clipboard";
-import { createShareUrl } from "@/lib/share/create-share-url";
-import { ShareableBill } from "@/lib/share/types";
 import { useBillStore } from "@/store/bill-store";
-import { Copy, Check, Calculator, Share2 } from "lucide-react";
+import { Copy, Check, Calculator } from "lucide-react";
+import { ShareButton } from "./share-button";
 
 type BillSummaryProps = {
   calculation: BillCalculation | null;
@@ -33,7 +32,6 @@ export function BillSummary({
   isDisabled,
 }: BillSummaryProps) {
   const [copied, setCopied] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
 
   const title = useBillStore((state) => state.title);
   const storeItems = useBillStore((state) => state.items);
@@ -52,55 +50,6 @@ export function BillSummary({
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    }
-  };
-
-  const handleShareLink = async () => {
-    const storeState = useBillStore.getState();
-    const activePeople = storeState.people.length ? storeState.people : people;
-    const activeItems = storeState.items;
-    const activeAdjustments = storeState.adjustments || {
-      taxRate,
-      serviceChargeRate,
-      discountAmount,
-    };
-
-    if (activePeople.length === 0 || activeItems.length === 0) return;
-
-    const payload: ShareableBill = {
-      title: storeState.title || "Shared Bill",
-      people: activePeople,
-      items: activeItems,
-      adjustments: activeAdjustments,
-    };
-
-    const url = createShareUrl(payload);
-
-    // Mobile: Native Share Sheet
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: payload.title || "Bill Split",
-          text: `Rincian tagihan "${payload.title || "Bill Split"}"`,
-          url,
-        });
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          // Fallback to copy if native share fails unexpectedly
-          const success = await copyToClipboard(url);
-          if (success) {
-            setShareCopied(true);
-            setTimeout(() => setShareCopied(false), 2500);
-          }
-        }
-      }
-    } else {
-      // Desktop / Unsupported: Copy URL to clipboard
-      const success = await copyToClipboard(url);
-      if (success) {
-        setShareCopied(true);
-        setTimeout(() => setShareCopied(false), 2500);
-      }
     }
   };
 
@@ -250,11 +199,11 @@ export function BillSummary({
 
       {/* Actions when calculation exists */}
       {calculation && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={handleCopySummary}
-            className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-center text-xs font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+            className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-center text-xs font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
           >
             {copied ? (
               <>
@@ -269,23 +218,9 @@ export function BillSummary({
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={handleShareLink}
-            className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 py-3 text-center text-xs font-semibold text-blue-700 hover:bg-blue-100/50 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
-          >
-            {shareCopied ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="text-emerald-600">Link Copied!</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="h-3.5 w-3.5 text-blue-600" />
-                <span>Share Bill</span>
-              </>
-            )}
-          </button>
+          <div className="flex-1">
+            <ShareButton />
+          </div>
         </div>
       )}
     </div>
