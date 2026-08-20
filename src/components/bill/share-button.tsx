@@ -27,12 +27,15 @@ export function ShareButton() {
       const shareUrl = createShareUrl(bill);
 
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: "Bill Split",
-          text: "Here's the bill split.",
-          url: shareUrl,
-        });
-
+        try {
+          await navigator.share({
+            title: "Bill Split",
+            text: "Here's the bill split.",
+            url: shareUrl,
+          });
+        } catch (error) {
+          // User cancelled sharing.
+        }
         return;
       }
 
