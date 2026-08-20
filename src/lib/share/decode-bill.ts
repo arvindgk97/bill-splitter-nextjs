@@ -10,7 +10,9 @@ export function decodeBill(encoded: string): ShareableBill | null {
   }
 
   try {
-    const decodedBase64 = decodeURIComponent(encoded);
+    // Clean up payload if extra text/spaces were appended by navigator.share or external apps
+    const rawPayload = encoded.trim().split(/[\s%20]+/)[0];
+    const decodedBase64 = decodeURIComponent(rawPayload);
 
     let uriEncoded: string;
     if (typeof window !== "undefined" && typeof window.atob === "function") {
@@ -20,7 +22,16 @@ export function decodeBill(encoded: string): ShareableBill | null {
     }
 
     const json = decodeURIComponent(uriEncoded);
-    const data = JSON.parse(json);
+
+    // Extract valid JSON object substring if trailing text exists
+    const firstBrace = json.indexOf("{");
+    const lastBrace = json.lastIndexOf("}");
+    const cleanJson =
+      firstBrace !== -1 && lastBrace !== -1
+        ? json.slice(firstBrace, lastBrace + 1)
+        : json;
+
+    const data = JSON.parse(cleanJson);
 
     // Basic structure validation
     if (

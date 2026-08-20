@@ -30,7 +30,6 @@ export function ShareButton() {
         try {
           await navigator.share({
             title: "Bill Split",
-            text: "Here's the bill split.",
             url: shareUrl,
           });
         } catch (error) {
